@@ -54,7 +54,6 @@ def login():
     if not acc:
         print("Account not exist")
         return jsonify({"error":"Account not exist"}),400
-        return jsonify({"error":"unknow username"}),400
     password_hash = hashlib.sha256(password.encode("utf-8")).hexdigest()
     print('password:',password_hash)
     print('acc.password:',acc.passw)
