@@ -96,6 +96,81 @@ def create_article():
     db.session.commit()
     return jsonify({"id":a.id}),201
 
+@app.route('/update_article',methods=['POST'])
+def update_article():
+    data = request.get_json() or {}
+    id = data.get('id')
+    title = data.get('title')
+    content = data.get('content')
+    username = data.get('username')
+    if not id or not title or not content or not username:
+        return jsonify({"error":"args"}),400
+    acc = Account.query.filter_by(username=username).first()
+    if not acc:
+        return jsonify({"error":"Account not exist"}),440
+    a = Article.query.get(id)
+    if not a:
+        return jsonify({"error":"Article not exist"}),440
+    a.title = title
+    a.content = content
+    db.session.commit()
+    return jsonify({"id":a.id}),200
+
+
+@app.route('/delete_article',methods=['POST'])
+def delete_article():
+    data = request.get_json() or {}
+    id = data.get('id')
+    if not id:
+        return jsonify({"error":"args"}),400
+    a = Article.query.get(id)
+    if not a:
+        return jsonify({"error":"Article not exist"}),440
+    db.session.delete(a)
+    db.session.commit()
+    return jsonify({"id":id}),200
+
+@app.route('/comments',methods=['POST'])
+def list_comments():
+    data = request.get_json() or {}
+    article_id = data.get('article_id')
+    if not article_id:
+        return jsonify({"error":"args"}),400
+    a = Article.query.get(article_id)
+    if not a:
+        return jsonify({"error":"Article not exist"}),440
+    comments = Comment.query.filter_by(article_id=article_id).order_by(Comment.created_at.asc()).all()
+    result = []
+    for item in comments:
+        userInfo = User.query.get(item.author_id)
+        result.append({
+            "id":item.id,
+            "article_id":item.article_id,
+            "author_id":item.author_id,
+            "author_name":userInfo.name if userInfo else None,
+            "content":item.content,
+            "created_at":item.created_at.isoformat() if item.created_at else None
+        })
+    return jsonify(result)
+
+
+@app.route('/create_comment',methods=['POST'])
+def create_comment():
+    data = request.get_json() or {}
+    article_id = data.get('article_id')
+    author_name = data.get('username')
+    content = data.get('content')
+    if not article_id or not author_name or not content:
+        return jsonify({"error":"args"}),400
+    acc = Account.query.filter_by(username=author_name).first()
+    if not acc:
+        return jsonify({"error":"Account not exist"}),440
+    c = Comment(article_id=article_id,author_id=acc.user_id,content=content)
+    db.session.add(c)
+    db.session.commit()
+    return jsonify({"id":c.id}),201
+
+
 def ensure_table():
     with app.app_context():
         db.create_all()

@@ -1,7 +1,7 @@
 <script setup >
 
 import {ref,onMounted} from 'vue'
-import {fetchArticles,createArticle} from './api.js'
+import {fetchArticles,createArticle,updateArticle,deleteArticle,fetchComments,createComment} from './api.js'
 import {ElMessage} from 'element-plus'
 
 // 创建文章
@@ -54,6 +54,59 @@ async function submitCreate(){
   }
 }
 
+async function openEdit(row){
+  editId.value = row.id
+  editTitle.value=row.title
+  editContent.value=row.content
+  showEdit.value=true
+}
+
+async function submitEdit() {
+  if (!editTitle.value || !editContent.value)
+    return
+  try{
+    await updateArticle(editId.value,editTitle.value,editContent.value,currentUsername())
+    showEdit.value =false
+    await loadArticles()
+    ElMessage.success("编辑成功")
+  }catch (e){
+    ElMessage.error(String(e.message))
+  }
+}
+
+async function removeArticle(row){
+  try{
+    await deleteArticle(row.id)
+    await loadArticles()
+    ElMessage.success('删除成功')
+  }catch (e){
+    ElMessage.error(String(e.message))
+  }
+}
+
+async function openComment(row){
+  currentArticle.value= row
+  commentsLoading.value=true
+  comments.value = await fetchComments(row.id)
+  showComment.value = true
+  commentsLoading.value=false
+}
+
+
+async function submitComment(){
+  if (!commentTxt.value||!currentArticle.value)
+    return
+  try{
+    await createComment(currentArticle.value.id,commentTxt.value,currentUsername())
+    commentTxt.value=''
+    comments.value = await fetchComments(currentArticle.value.id)
+
+    ElMessage.success('评论成功')
+  }catch (e){
+    ElMessage.error(String(e.message))
+  }
+}
+
 onMounted(loadArticles)
 </script>
 
@@ -73,7 +126,7 @@ onMounted(loadArticles)
       <template #default="{row}">
         <el-button size="small" @click="openEdit(row)">编辑</el-button>
         <el-button size="small" type="danger" @click="removeArticle(row)">删除</el-button>
-        <el-button size="small" type="success" @click="openComent(row)">评论</el-button>
+        <el-button size="small" type="success" @click="openComment(row)">评论</el-button>
       </template>
     </el-table-column>
   </el-table>
