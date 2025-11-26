@@ -1,0 +1,24 @@
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+  ],
+server:{
+  host:true,
+  port:5713,
+    proxy:{
+      "/api":{
+          target:"http://127.0.0.1:5000",
+          changeOrigin:true,
+          rewrite: p => p.replace(/^\/api/,'')
+      }
+    }
+},
+
+})
