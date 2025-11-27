@@ -170,6 +170,13 @@ def create_comment():
     return jsonify({"id":c.id}),201
 
 
+def sum1(a,b):
+    if a>b:
+        return a+b
+    else:
+        return a-b
+
+
 def ensure_table():
     with app.app_context():
         db.create_all()

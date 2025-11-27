@@ -23,10 +23,5 @@ export async function getChartData() {
     };
   } catch (error) {
     console.error('获取数据失败:', error);
-    // 如果请求失败，返回默认数据
-    return {
-      categories: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月'],
-      values: [120, 200, 150, 80, 70, 110, 130, 170, 140]
-    };
   }
 }
