@@ -10,12 +10,10 @@ const showCreate = ref(false)
 const addUserName = ref('')
 const addUserPassw = ref('')
 
-
 async function loadUsers(){
   const res = await fetchUsers()
   users.value = res
 }
-
 
 async function addUser(){
   const res = await createUser(addUserName.value,addUserPassw.value)

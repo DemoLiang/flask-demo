@@ -72,14 +72,9 @@ def add_user():
 
     return jsonify({"success":True}),201
 
-
-
 def ensure_table():
     with app.app_context():
         db.create_all()
 
 if __name__ == "__main__":
     app.run(port=5000,debug=True)
-
-
-
